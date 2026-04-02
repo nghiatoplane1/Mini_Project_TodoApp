@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Todo App</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #333; }
+    input { padding: 8px; width: 70%; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 8px 16px; background: #4CAF50; color: white; border: none;
+             border-radius: 4px; cursor: pointer; margin-left: 8px; }
+    button.del { background: #e53935; margin-left: 12px; }
+    button.done-btn { background: #1976D2; }
+    li { margin: 10px 0; list-style: none; display: flex; align-items: center; }
+    .done-text { text-decoration: line-through; color: #aaa; }
+    nav a { margin-right: 16px; color: #1976D2; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <nav><a href="index.html">🏠 Trang chủ</a><a href="about.html">👤 About</a></nav>
+  <h1>📝 Todo List</h1>
+  <input id="inp" placeholder="Nhập công việc mới..." />
+  <button onclick="addTodo()">Thêm</button>
+  <ul id="list"></ul>
+
+  <script>
+    const API = "http://localhost:8000";
+
+    async function load() {
+      const res = await fetch(`${API}/todos`);
+      const todos = await res.json();
+      const ul = document.getElementById("list");
+      ul.innerHTML = "";
+      todos.forEach(t => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span class="${t.done ? 'done-text' : ''}">${t.title}</span>
+          <button class="done-btn" onclick="toggleDone('${t.id}', '${t.title}', ${t.done})">
+            ${t.done ? "↩ Undo" : "✔ Done"}
+          </button>
+          <button class="del" onclick="deleteTodo('${t.id}')">🗑 Xóa</button>
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    async function addTodo() {
+      const title = document.getElementById("inp").value.trim();
+      if (!title) return;
+      await fetch(`${API}/todos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, done: false })
+      });
+      document.getElementById("inp").value = "";
+      load();
+    }
+
+    async function toggleDone(id, title, done) {
+      await fetch(`${API}/todos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, done: !done })
+      });
+      load();
+    }
+
+    async function deleteTodo(id) {
+      await fetch(`${API}/todos/${id}`, { method: "DELETE" });
+      load();
+    }
+
+    load();
+  </script>
+</body>
+</html>
