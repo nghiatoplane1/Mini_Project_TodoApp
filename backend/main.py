@@ -37,9 +37,9 @@ def health():
 @app.get("/about")
 def about():
     return {
-        "name": "Nguyễn Văn A",       # ← đổi thành tên bạn
-        "student_id": "123456789",     # ← mã số sinh viên
-        "class": "CNTT01",             # ← lớp của bạn
+        "name": "Võ Huy Nghĩa",     
+        "student_id": "2251220237",   
+        "class": "22CT1",            
         "app": os.getenv("APP_NAME")
     }
 
